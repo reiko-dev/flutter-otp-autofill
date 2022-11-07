@@ -16,7 +16,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:otp_autofill/otp_autofill.dart';
-import 'package:otp_autofill_example/sample_strategy.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,8 +39,7 @@ class _MyAppState extends State<MyApp> {
     _otpInteractor = OTPInteractor();
     _otpInteractor
         .getAppSignature()
-        //ignore: avoid_print
-        .then((value) => print('signature - $value'));
+        .then((value) => debugPrint('signature - $value'));
 
     controller = OTPTextEditController(
       codeLength: 5,
@@ -49,13 +47,15 @@ class _MyAppState extends State<MyApp> {
       onCodeReceive: (code) => print('Your Application receive code - $code'),
       otpInteractor: _otpInteractor,
     )..startListenUserConsent(
-        (code) {
+        (message) {
+          debugPrint('Message: $message');
+
           final exp = RegExp(r'(\d{5})');
-          return exp.stringMatch(code ?? '') ?? '';
+          return exp.stringMatch(message ?? '') ?? '';
         },
-        strategies: [
-          SampleStrategy(),
-        ],
+        // strategies: [
+        //   SampleStrategy(),
+        // ],
       );
   }
 
@@ -72,6 +72,7 @@ class _MyAppState extends State<MyApp> {
             padding: const EdgeInsets.all(40.0),
             child: TextField(
               textAlign: TextAlign.center,
+              autofillHints: const <String>[AutofillHints.oneTimeCode],
               keyboardType: TextInputType.number,
               controller: controller,
             ),
